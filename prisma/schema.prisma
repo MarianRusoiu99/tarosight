@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  passwordHash  String
+  profileImage  String?   @default("https://api.dicebear.com/7.x/avataaars/svg") // Default avatar
+  tokens        Int       @default(5)  // New users get 5 free tokens
+  readings      Reading[]
+  preferences   Json?     // Store user preferences as JSON
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Reading {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  cards     Json     // Store the cards drawn
+  aiReading String   @db.Text  // Store the AI's interpretation
+  createdAt DateTime @default(now())
+} 
