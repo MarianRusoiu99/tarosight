@@ -5,7 +5,7 @@
  */
 
 import { prisma } from '@/src/infrastructure/database/prisma.client';
-import { ollamaClient } from '@/src/infrastructure/ai/ollama.client';
+import { aiClient } from '@/src/infrastructure/ai/ai.client';
 import { userService } from '@/src/modules/user/user.service';
 import { AUTH_CONFIG } from '@/src/infrastructure/config/auth';
 import { InsufficientTokensError, NotFoundError } from '@/src/shared/errors';
@@ -73,8 +73,8 @@ export class TarotService {
     // Generate prompt
     const prompt = generateTarotReadingPrompt(cards);
 
-    // Call AI service - errors from ollamaClient are already ExternalServiceError
-    const aiReading = await ollamaClient.generateCompletion(prompt);
+    // Call AI service - errors from aiClient are already ExternalServiceError
+    const aiReading = await aiClient.generateCompletion(prompt);
 
     // Use transaction to atomically create reading and deduct tokens
     const result = await prisma.$transaction(async (tx) => {
@@ -133,7 +133,7 @@ export class TarotService {
     const prompt = generateChatPrompt(message, previousReading);
 
     // Call AI service
-    const response = await ollamaClient.generateCompletion(prompt);
+    const response = await aiClient.generateCompletion(prompt);
 
     return { response };
   }
