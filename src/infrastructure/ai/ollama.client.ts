@@ -75,9 +75,12 @@ export class OllamaClient {
         throw fetchError;
       }
     } catch (error) {
+      if (error instanceof ExternalServiceError) {
+        throw error;
+      }
       if (error instanceof Error) {
         console.error('Ollama client error:', error.message);
-        throw error;
+        throw new ExternalServiceError('Ollama', error.message, error);
       }
       console.error('Unknown Ollama client error:', error);
       throw new ExternalServiceError('Ollama', 'Unknown error occurred', error instanceof Error ? error : undefined);
@@ -138,9 +141,12 @@ export class OllamaClient {
         throw fetchError;
       }
     } catch (error) {
+      if (error instanceof ExternalServiceError) {
+        throw error;
+      }
       if (error instanceof Error) {
         console.error('Ollama stream client error:', error.message);
-        throw error;
+        throw new ExternalServiceError('Ollama', error.message, error);
       }
       console.error('Unknown Ollama stream client error:', error);
       throw new ExternalServiceError('Ollama', 'Unknown error occurred while streaming', error instanceof Error ? error : undefined);

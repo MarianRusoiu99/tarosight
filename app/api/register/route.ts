@@ -18,6 +18,7 @@ const handler = async (request: Request) => {
   const result = await authService.register(validationResult.data!);
 
   // Create response with user data
+  // Note: `success: true` is intentionally included for auth flows for consistency with existing API consumers
   const response = NextResponse.json({
     success: true,
     user: result.user,

@@ -24,6 +24,8 @@ export function withErrorHandler(
           message: error.message,
         };
 
+        errorResponse.details = error.details;
+
         if (error.details?.errors) {
           errorResponse.errors = error.details.errors as Record<string, string>;
         }

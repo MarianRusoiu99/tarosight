@@ -100,25 +100,25 @@ export class TarotService {
         tx
       );
 
-      // Deduct tokens
-      await tx.user.update({
+      // Deduct tokens and get updated user
+      const updatedUser = await tx.user.update({
         where: { id: userId },
         data: {
           tokens: { decrement: AUTH_CONFIG.readingCost },
         },
+        select: {
+          tokens: true,
+        },
       });
 
-      return reading;
+      return { reading, remainingTokens: updatedUser.tokens };
     });
-
-    // Calculate remaining tokens
-    const remainingTokens = tokenBalance - AUTH_CONFIG.readingCost;
 
     return {
       reading: cards,
       aiReading,
-      remainingTokens,
-      readingId: result.id,
+      remainingTokens: result.remainingTokens,
+      readingId: result.reading.id,
     };
   }
 
