@@ -1,41 +1,25 @@
-import { hash, compare } from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { AUTH_CONFIG } from './config/auth';
-import { prisma } from './prisma';
+// Re-export auth service for backward compatibility
+import { authService } from '@/src/modules/auth/auth.service';
+import { userService } from '@/src/modules/user/user.service';
 
-export async function hashPassword(password: string) {
-  return hash(password, 12);
-}
+// Re-export auth functions from auth service
+export const hashPassword = (password: string) => authService.hashPassword(password);
+export const verifyPassword = (password: string, hashedPassword: string) => authService.verifyPassword(password, hashedPassword);
+export const generateToken = (userId: string) => authService.generateToken(userId);
+export const verifyToken = (token: string) => authService.verifyToken(token);
 
-export async function verifyPassword(password: string, hashedPassword: string) {
-  return compare(password, hashedPassword);
-}
+// Re-export user token management functions from user service
 
-export function generateToken(userId: string) {
-  return jwt.sign({ userId }, AUTH_CONFIG.jwtSecret, {
-    expiresIn: AUTH_CONFIG.tokenExpiry,
-  });
-}
-
-export function verifyToken(token: string) {
-  try {
-    return jwt.verify(token, AUTH_CONFIG.jwtSecret) as { userId: string };
-  } catch {
-    return null;
-  }
-}
-
+/**
+ * Get user token balance as a number
+ * Delegates to userService.getUserTokenBalance for simplified API
+ */
 export async function getUserTokens(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { tokens: true },
-  });
-  return user?.tokens ?? 0;
+  return userService.getUserTokenBalance(userId);
 }
 
 export async function deductTokens(userId: string, amount: number) {
-  return prisma.user.update({
-    where: { id: userId },
-    data: { tokens: { decrement: amount } },
-  });
+  const result = await userService.deductTokens(userId, amount);
+  // Return user object format for backward compatibility
+  return { id: userId, tokens: result.newBalance };
 } 

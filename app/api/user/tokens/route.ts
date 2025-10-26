@@ -1,31 +1,17 @@
 import { NextResponse } from "next/server";
-import { verifyToken, getUserTokens } from '@/lib/auth';
+import { userService } from '@/src/modules/user/user.service';
+import { withErrorHandler } from '@/src/shared/middleware/error-handler';
+import { requireAuth } from '@/src/shared/middleware/auth.middleware';
 
-export async function GET(request: Request) {
-  try {
-    const token = request.cookies.get('token')?.value;
-    if (!token) {
-      return NextResponse.json(
-        { message: "Authentication required" },
-        { status: 401 }
-      );
-    }
+const handler = async () => {
+  // Verify authentication
+  const { userId } = await requireAuth();
 
-    const payload = verifyToken(token);
-    if (!payload) {
-      return NextResponse.json(
-        { message: "Invalid token" },
-        { status: 401 }
-      );
-    }
+  // Get user token balance
+  const tokenBalance = await userService.getUserTokenBalance(userId);
 
-    const tokens = await getUserTokens(payload.userId);
-    return NextResponse.json({ tokens });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { message: "Error fetching token balance" },
-      { status: 500 }
-    );
-  }
-} 
+  return NextResponse.json({ tokens: tokenBalance });
+};
+
+export const GET = withErrorHandler(handler);
+ 

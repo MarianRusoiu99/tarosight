@@ -16,4 +16,6 @@ export type TarotReading = {
   definition: string;
   aiInterpretation: string;
   powerWord: string;
-}; 
+};
+
+export type TarotCard = TarotReading; 

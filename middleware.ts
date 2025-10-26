@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { AUTH_CONFIG } from '@/src/infrastructure/config/auth';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -14,8 +15,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for token cookie instead of auth
-  const token = request.cookies.get('token');
+  // Check for auth cookie using standardized config
+  const token = request.cookies.get(AUTH_CONFIG.cookieName);
   if (!token) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

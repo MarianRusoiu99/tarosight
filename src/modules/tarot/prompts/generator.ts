@@ -1,5 +1,5 @@
 import { PROMPT_TEMPLATES } from './templates';
-import type { TarotCard } from '@/types/tarot';
+import type { TarotCard } from '@/src/modules/tarot/tarot.types';
 
 export function generateTarotReadingPrompt(cards: TarotCard[]) {
   const formattedCards = cards
